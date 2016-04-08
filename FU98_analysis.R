@@ -18,7 +18,6 @@ add.flagstat.path <- function(flagstat.filename){
   paste(flagstat.directory,flagstat.filename, sep="")
 }
 
-
 #rRNA rates
 setwd(analysis.directory)
 rna_qc_uppsala <- read.delim("../uppsala/pipeline_output/RNA_QC/aggregated_metrics.tsv")
@@ -46,4 +45,30 @@ barplot(rna_qc_all.sorted$strand.spec.log10, col = c("lightgreen", "lightblue")[
 
 # PCR duplicate levels
 rna_qc_all.sorted$ds.pcr.dup <- sapply(add.flagstat.path(rna_qc_all.sorted$flagstat.filename), flagstat.duplicate.reads) / sapply(add.flagstat.path(rna_qc_all.sorted$flagstat.filename), flagstat.mapped.reads)
+
+# FPKM correlations
+library(cummeRbund)
+
+#GM12878
+separate.cuff.GM12878 <- readCufflinks("../diff_out_GM12878_masked_separate")
+#plot scatterplots of all GM samples together
+csScatterMatrix(genes(separate.cuff.GM12878))
+#sc.plot1 <- csScatter(genes(separate.cuff), 'Uppsala_GM12878_1', 'Stockholm_GM12878_1') + annotate("text", x = 4, y = 1e6, label = "Pearson correlation: X", size = 10) + theme(axis.title = element_text(size=20))
+#sc.plot1 + annotate("text", x = 4, y = 1e6, label = "Spearman correlation: X", size = 10)
+
+#Table of Spearman correlations
+separate.fpkm.GM12878 <- fpkmMatrix(genes(separate.cuff.GM12878))
+cor(separate.fpkm.GM12878, method = "spearman")
+
+#HeLa-S3
+separate.cuff.HeLa <- readCufflinks("../diff_out_HeLa_masked_separate")
+#plot scatterplots of all GM samples together
+csScatterMatrix(genes(separate.cuff.HeLa))
+#sc.plot1 <- csScatter(genes(separate.cuff), 'Uppsala_GM12878_1', 'Stockholm_GM12878_1') + annotate("text", x = 4, y = 1e6, label = "Pearson correlation: X", size = 10) + theme(axis.title = element_text(size=20))
+#sc.plot1 + annotate("text", x = 4, y = 1e6, label = "Spearman correlation: X", size = 10)
+
+#Table of Spearman correlations
+separate.fpkm.HeLa <- fpkmMatrix(genes(separate.cuff.HeLa))
+cor(separate.fpkm.HeLa, method = "spearman")
+
 
