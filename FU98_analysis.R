@@ -71,4 +71,41 @@ csScatterMatrix(genes(separate.cuff.HeLa))
 separate.fpkm.HeLa <- fpkmMatrix(genes(separate.cuff.HeLa))
 cor(separate.fpkm.HeLa, method = "spearman")
 
+### Longitudinal analysis below
+
+##rRNA rates
+rna_qc_old <- read.delim("../FU45/RNA_QC/aggregated_metrics.tsv")
+rna_qc_old$center <- "Uppsala-old"
+rna_qc_old$pretty.sample <- c("Ua-old.HeLa-S3.1ug.1", "Ua-old.GM12878.100ng.2", "Ua-old.GM12878.1ug.1", "Ua-old.GM12878.100ng.1", "Ua-old.HeLa-S3.1ug.2", "Ua-old.GM12878.1ug.2")
+rna_qc_all_old_vs_new <- rbind(rna_qc_uppsala, rna_qc_old)
+rna_qc_all_old_vs_new$center <- as.factor(rna_qc_all_old_vs_new$center)
+rna_qc_all_old_vs_new.sorted <- rna_qc_all_old_vs_new[with(rna_qc_all_old_vs_new, order(pretty.sample)), ]
+
+#from primary above, saving in case its useful later
+#rna_qc_all.sorted$raw.pcr.dup <- c(0.381183,0.394302,0.297067,0.281671,0.247557,0.217364,0.198524)
+#flagstat.filenames <- c("ds_1-GM12878-1.bam.flagstat", "ds_2-GM12878-1.bam.flagstat", "ds_1-HeLa-S3.bam.flagstat", "ds_2-HeLa-S3.bam.flagstat", "ds_GM12878-1-RNA.bam.flagstat", "dedup_GM12878-1-RNA-1.bam.flagstat", "ds_HeLs-S3.bam.flagstat" )
+#rna_qc_all.sorted$flagstat.filename <- flagstat.filenames
+
+row.names(rna_qc_all_old_vs_new.sorted) <- rna_qc_all_old_vs_new.sorted$pretty.sample
+old <- par()
+par(mar=c(10,5,5,5))
+barplot (rna_qc_all_old_vs_new.sorted$rRNA.rate, col = c("lightgreen", "lightblue")[rna_qc_all_old_vs_new.sorted$center], names.arg = row.names(rna_qc_all_old_vs_new.sorted), las = 2, cex.names  = 0.9, ylim = c(0,0.004), ylab = "rRNA rate")
+
+
+
+
+
+## Correlations / scatterplots
+old_new.cuff.GM12878 <- readCufflinks("../diff_out_GM12878_masked_separate_old_vs_new")
+old_new.cuff.HeLa <- readCufflinks("../diff_out_HeLa_masked_separate_old_vs_new")
+
+#GM12878
+csScatterMatrix(genes(old_new.cuff.GM12878))
+separate.fpkm.GM12878.old.new <- fpkmMatrix(genes(old_new.cuff.GM12878))
+cor(separate.fpkm.GM12878.old.new, method = "spearman")
+
+#HeLa-S3
+csScatterMatrix(genes(old_new.cuff.HeLa))
+separate.fpkm.HeLa.old.new <- fpkmMatrix(genes(old_new.cuff.HeLa))
+cor(separate.fpkm.HeLa.old.new, method = "spearman")
 
