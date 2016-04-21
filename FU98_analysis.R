@@ -18,18 +18,22 @@ add.flagstat.path <- function(flagstat.filename){
   paste(flagstat.directory,flagstat.filename, sep="")
 }
 
+###########################
+# Uppsala vs Stockholm 2015
+###########################
+
 #rRNA rates
 setwd(analysis.directory)
 rna_qc_uppsala <- read.delim("../uppsala/pipeline_output/RNA_QC/aggregated_metrics.tsv")
 rna_qc_stockholm <- read.delim("../stockholm/pipeline_output/RNA_QC/aggregated_metrics.tsv")
-rna_qc_uppsala$center <- "Uppsala"
+rna_qc_uppsala$center <- "../uppsala/pipeline_output/RNA_QC/aggregated_metrics.tsv"
 rna_qc_uppsala$pretty.sample <- c("Ua.HeLa-S3.1", "Ua.GM12878.1", "Ua.GM12878.2")
 rna_qc_stockholm$center <- "Stockholm"
 rna_qc_stockholm$pretty.sample <- c("Sth.GM12878.1", "Sth.HeLa-S3.2", "Sth.GM12878.2", "Sth.HeLa-S3.1")
 rna_qc_all <- rbind(rna_qc_uppsala, rna_qc_stockholm)
 rna_qc_all$center <- as.factor(rna_qc_all$center)
 rna_qc_all.sorted <- rna_qc_all[with(rna_qc_all, order(pretty.sample)), ]
-rna_qc_all.sorted$raw.pcr.dup <- c(0.381183,0.394302,0.297067,0.281671,0.247557,0.217364,0.198524)
+rna_qc_all.sorted$raw.pcr.dup <- c(0.381183,0.394302,0.297067,0.281671,0.247557,0.217364,0.198524) #not used
 flagstat.filenames <- c("ds_1-GM12878-1.bam.flagstat", "ds_2-GM12878-1.bam.flagstat", "ds_1-HeLa-S3.bam.flagstat", "ds_2-HeLa-S3.bam.flagstat", "ds_GM12878-1-RNA.bam.flagstat", "dedup_GM12878-1-RNA-1.bam.flagstat", "ds_HeLs-S3.bam.flagstat" )
 rna_qc_all.sorted$flagstat.filename <- flagstat.filenames
 
@@ -71,31 +75,45 @@ csScatterMatrix(genes(separate.cuff.HeLa))
 separate.fpkm.HeLa <- fpkmMatrix(genes(separate.cuff.HeLa))
 cor(separate.fpkm.HeLa, method = "spearman")
 
-### Longitudinal analysis below
+#########################
+### Longitudinal analysis
+#########################
 
 ##rRNA rates
-rna_qc_old <- read.delim("../FU45/RNA_QC/aggregated_metrics.tsv")
-rna_qc_old$center <- "Uppsala-old"
-rna_qc_old$pretty.sample <- c("Ua-old.HeLa-S3.1ug.1", "Ua-old.GM12878.100ng.2", "Ua-old.GM12878.1ug.1", "Ua-old.GM12878.100ng.1", "Ua-old.HeLa-S3.1ug.2", "Ua-old.GM12878.1ug.2")
-rna_qc_all_old_vs_new <- rbind(rna_qc_uppsala, rna_qc_old)
-rna_qc_all_old_vs_new$center <- as.factor(rna_qc_all_old_vs_new$center)
-rna_qc_all_old_vs_new.sorted <- rna_qc_all_old_vs_new[with(rna_qc_all_old_vs_new, order(pretty.sample)), ]
+rna_qc_2013 <- read.delim("../FU45/RNA_QC/aggregated_metrics.tsv")
+rna_qc_2014 <- read.delim("../uppsala_2014/pipeline_output/RNA_QC/aggregated_metrics.tsv")
+rna_qc_2013$center <- "Uppsala-2013"
+rna_qc_2014$center <- "Uppsala-2014"
+rna_qc_2013$pretty.sample <- c("Ua-2013.HeLa-S3.1ug.1", "Ua-2013.GM12878.100ng.2", "Ua-2013.GM12878.1ug.1", "Ua-2013.GM12878.100ng.1", "Ua-2013.HeLa-S3.1ug.2", "Ua-2013.GM12878.1ug.2")
+rna_qc_2014$pretty.sample <- c("Ua-2014.HeLa-S3.2", "Ua-2014.HeLa-S3.1");
+
+rna_qc_all_old_vs_new <- rbind(rna_qc_uppsala, rna_qc_2013)
+rna_qc_all_2015_2014_2013 <- rbind(rna_qc_all_old_vs_new, rna_qc_2014)
+#rna_qc_all_old_vs_new$center <- as.factor(rna_qc_all_old_vs_new$center)
+#rna_qc_all_old_vs_new.sorted <- rna_qc_all_old_vs_new[with(rna_qc_all_old_vs_new, order(pretty.sample)), ]
+rna_qc_all_2015_2014_2013$center <- as.factor(rna_qc_all_2015_2014_2013$center)
+rna_qc_all_2015_2014_2013.sorted <- rna_qc_all_2015_2014_2013[with(rna_qc_all_2015_2014_2013, order(pretty.sample)), ]
 
 #from primary above, saving in case its useful later
 #rna_qc_all.sorted$raw.pcr.dup <- c(0.381183,0.394302,0.297067,0.281671,0.247557,0.217364,0.198524)
 #flagstat.filenames <- c("ds_1-GM12878-1.bam.flagstat", "ds_2-GM12878-1.bam.flagstat", "ds_1-HeLa-S3.bam.flagstat", "ds_2-HeLa-S3.bam.flagstat", "ds_GM12878-1-RNA.bam.flagstat", "dedup_GM12878-1-RNA-1.bam.flagstat", "ds_HeLs-S3.bam.flagstat" )
 #rna_qc_all.sorted$flagstat.filename <- flagstat.filenames
 
-row.names(rna_qc_all_old_vs_new.sorted) <- rna_qc_all_old_vs_new.sorted$pretty.sample
+#row.names(rna_qc_all_old_vs_new.sorted) <- rna_qc_all_old_vs_new.sorted$pretty.sample
+row.names(rna_qc_all_2015_2014_2013.sorted) <-  rna_qc_all_2015_2014_2013.sorted$pretty.sample
+
 old <- par()
 par(mar=c(10,5,5,5))
-barplot (rna_qc_all_old_vs_new.sorted$rRNA.rate, col = c("lightgreen", "lightblue")[rna_qc_all_old_vs_new.sorted$center], names.arg = row.names(rna_qc_all_old_vs_new.sorted), las = 2, cex.names  = 0.9, ylim = c(0,0.004), ylab = "rRNA rate")
+#barplot (rna_qc_all_old_vs_new.sorted$rRNA.rate, col = c("lightgreen", "lightblue")[rna_qc_all_old_vs_new.sorted$center], names.arg = row.names(rna_qc_all_old_vs_new.sorted), las = 2, cex.names  = 0.9, ylim = c(0,0.004), ylab = "rRNA rate")
+barplot (rna_qc_all_2015_2014_2013.sorted$rRNA.rate, col = c("lightblue", "blue", "darkblue")[rna_qc_all_2015_2014_2013.sorted$center], names.arg = row.names(rna_qc_all_2015_2014_2013.sorted), las = 2, cex.names  = 0.9, ylim = c(0,0.004), ylab = "rRNA rate")
+
 
 # Strand specificity
 rna_qc_all_old_vs_new.sorted$strand.spec <- rna_qc_all_old_vs_new.sorted$End.1.Sense / rna_qc_all_old_vs_new.sorted$End.2.Sense
 rna_qc_all_old_vs_new.sorted$strand.spec.log10 <- log10(rna_qc_all_old_vs_new.sorted$strand.spec)
 barplot(rna_qc_all_old_vs_new.sorted$strand.spec.log10, col = c("lightgreen", "lightblue")[rna_qc_all_old_vs_new.sorted$center], names.arg = row.names(rna_qc_all_old_vs_new.sorted), las = 2, cex.names  = 0.9, ylim = c(-2.5,0.1), ylab = "Strand specificity")
 
+#PCR duplicate levels
 
 ## Correlations / scatterplots
 old_new.cuff.GM12878 <- readCufflinks("../diff_out_GM12878_masked_separate_old_vs_new")
