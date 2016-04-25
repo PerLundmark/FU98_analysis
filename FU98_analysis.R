@@ -103,15 +103,20 @@ rna_qc_all_2015_2014_2013.sorted <- rna_qc_all_2015_2014_2013[with(rna_qc_all_20
 row.names(rna_qc_all_2015_2014_2013.sorted) <-  rna_qc_all_2015_2014_2013.sorted$pretty.sample
 
 old <- par()
+
 par(mar=c(10,5,5,5))
 #barplot (rna_qc_all_old_vs_new.sorted$rRNA.rate, col = c("lightgreen", "lightblue")[rna_qc_all_old_vs_new.sorted$center], names.arg = row.names(rna_qc_all_old_vs_new.sorted), las = 2, cex.names  = 0.9, ylim = c(0,0.004), ylab = "rRNA rate")
-barplot (rna_qc_all_2015_2014_2013.sorted$rRNA.rate, col = c("lightblue", "blue", "darkblue")[rna_qc_all_2015_2014_2013.sorted$center], names.arg = row.names(rna_qc_all_2015_2014_2013.sorted), las = 2, cex.names  = 0.9, ylim = c(0,0.004), ylab = "rRNA rate")
+barplot (rna_qc_all_2015_2014_2013.sorted$rRNA.rate, col = c("lightgreen", "lightblue", "white")[rna_qc_all_2015_2014_2013.sorted$center], names.arg = row.names(rna_qc_all_2015_2014_2013.sorted), las = 2, cex.names  = 0.9, ylim = c(0,0.004), ylab = "rRNA rate")
 
 
 # Strand specificity
-rna_qc_all_old_vs_new.sorted$strand.spec <- rna_qc_all_old_vs_new.sorted$End.1.Sense / rna_qc_all_old_vs_new.sorted$End.2.Sense
-rna_qc_all_old_vs_new.sorted$strand.spec.log10 <- log10(rna_qc_all_old_vs_new.sorted$strand.spec)
-barplot(rna_qc_all_old_vs_new.sorted$strand.spec.log10, col = c("lightgreen", "lightblue")[rna_qc_all_old_vs_new.sorted$center], names.arg = row.names(rna_qc_all_old_vs_new.sorted), las = 2, cex.names  = 0.9, ylim = c(-2.5,0.1), ylab = "Strand specificity")
+#rna_qc_all_old_vs_new.sorted$strand.spec <- rna_qc_all_old_vs_new.sorted$End.1.Sense / rna_qc_all_old_vs_new.sorted$End.2.Sense
+#rna_qc_all_old_vs_new.sorted$strand.spec.log10 <- log10(rna_qc_all_old_vs_new.sorted$strand.spec)
+#barplot(rna_qc_all_old_vs_new.sorted$strand.spec.log10, col = c("lightgreen", "lightblue")[rna_qc_all_old_vs_new.sorted$center], names.arg = row.names(rna_qc_all_old_vs_new.sorted), las = 2, cex.names  = 0.9, ylim = c(-2.5,0.1), ylab = "Strand specificity")
+
+rna_qc_all_2015_2014_2013.sorted$strand.spec <- rna_qc_all_2015_2014_2013.sorted$End.1.Sense / rna_qc_all_2015_2014_2013.sorted$End.2.Sense
+rna_qc_all_2015_2014_2013.sorted$strand.spec.log10 <- log10(rna_qc_all_2015_2014_2013.sorted$strand.spec)
+barplot(rna_qc_all_2015_2014_2013.sorted$strand.spec.log10, col = c("lightgreen", "lightblue", "white")[rna_qc_all_2015_2014_2013.sorted$center], names.arg = row.names(rna_qc_all_2015_2014_2013.sorted), las = 2, cex.names  = 0.9, ylim = c(-2.5,0.1), ylab = "Strand specificity")
 
 #PCR duplicate levels
 
