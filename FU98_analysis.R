@@ -38,17 +38,31 @@ flagstat.filenames <- c("ds_1-GM12878-1.bam.flagstat", "ds_2-GM12878-1.bam.flags
 rna_qc_all.sorted$flagstat.filename <- flagstat.filenames
 
 row.names(rna_qc_all.sorted) <- rna_qc_all.sorted$pretty.sample
+
 old <- par()
-par(mar=c(10,5,5,5))
+ppi <- 300
+png("./output/rRNA_Ua_vs_Sth.png", width=6*ppi, height=6*ppi, res=ppi)
+par(mar=c(10,5,5,1))
 barplot (rna_qc_all.sorted$rRNA.rate, col = c("lightgreen", "lightblue")[rna_qc_all.sorted$center], names.arg = row.names(rna_qc_all.sorted), las = 2, cex.names  = 0.9, ylim = c(0,0.004), ylab = "rRNA rate")
+dev.off()
 
 # Strand specificity
 rna_qc_all.sorted$strand.spec <- rna_qc_all.sorted$End.1.Sense / rna_qc_all.sorted$End.2.Sense
 rna_qc_all.sorted$strand.spec.log10 <- log10(rna_qc_all.sorted$strand.spec)
+
+ppi <- 300
+png("./output/Strand_spec_Ua_vs_Sth.png", width=6*ppi, height=6*ppi, res=ppi)
+par(mar=c(10,5,5,1))
 barplot(rna_qc_all.sorted$strand.spec.log10, col = c("lightgreen", "lightblue")[rna_qc_all.sorted$center], names.arg = row.names(rna_qc_all.sorted), las = 2, cex.names  = 0.9, ylim = c(-2.5,0.1), ylab = "Strand specificity")
+dev.off()
 
 # PCR duplicate levels
 rna_qc_all.sorted$ds.pcr.dup <- sapply(add.flagstat.path(rna_qc_all.sorted$flagstat.filename), flagstat.duplicate.reads) / sapply(add.flagstat.path(rna_qc_all.sorted$flagstat.filename), flagstat.mapped.reads)
+ppi <- 300
+png("./output/PCR_duprate_Ua_vs_Sth.png", width=6*ppi, height=6*ppi, res=ppi)
+par(mar=c(10,5,5,1))
+barplot(rna_qc_all.sorted$ds.pcr.dup, col = c("lightgreen", "lightblue")[rna_qc_all.sorted$center], names.arg = row.names(rna_qc_all.sorted), las = 2, cex.names  = 0.9, ylim = c(0,0.4), ylab = "Duplication rate")
+dev.off()
 
 # FPKM correlations
 library(cummeRbund)
@@ -56,24 +70,33 @@ library(cummeRbund)
 #GM12878
 separate.cuff.GM12878 <- readCufflinks("../diff_out_GM12878_masked_separate")
 #plot scatterplots of all GM samples together
+
+ppi <- 300
+png("./output/Scatter_GM12878.png", width=8*ppi, height=8*ppi, res=ppi)
 csScatterMatrix(genes(separate.cuff.GM12878))
+dev.off()
 #sc.plot1 <- csScatter(genes(separate.cuff), 'Uppsala_GM12878_1', 'Stockholm_GM12878_1') + annotate("text", x = 4, y = 1e6, label = "Pearson correlation: X", size = 10) + theme(axis.title = element_text(size=20))
 #sc.plot1 + annotate("text", x = 4, y = 1e6, label = "Spearman correlation: X", size = 10)
 
 #Table of Spearman correlations
 separate.fpkm.GM12878 <- fpkmMatrix(genes(separate.cuff.GM12878))
-cor(separate.fpkm.GM12878, method = "spearman")
+spearman.corr.GM12878 <- cor(separate.fpkm.GM12878, method = "spearman")
+write.table(spearman.corr.GM12878, file="./output/spearman.corr.GM12878.tsv", sep="\t")
 
 #HeLa-S3
 separate.cuff.HeLa <- readCufflinks("../diff_out_HeLa_masked_separate")
 #plot scatterplots of all GM samples together
+ppi <- 300
+png("./output/Scatter_HeLa.png", width=8*ppi, height=8*ppi, res=ppi)
 csScatterMatrix(genes(separate.cuff.HeLa))
+dev.off()
 #sc.plot1 <- csScatter(genes(separate.cuff), 'Uppsala_GM12878_1', 'Stockholm_GM12878_1') + annotate("text", x = 4, y = 1e6, label = "Pearson correlation: X", size = 10) + theme(axis.title = element_text(size=20))
 #sc.plot1 + annotate("text", x = 4, y = 1e6, label = "Spearman correlation: X", size = 10)
 
 #Table of Spearman correlations
 separate.fpkm.HeLa <- fpkmMatrix(genes(separate.cuff.HeLa))
 cor(separate.fpkm.HeLa, method = "spearman")
+write.table(spearman.corr.HeLa, file="./output/spearman.corr.HeLa.tsv", sep="\t")
 
 #########################
 ### Longitudinal analysis
@@ -123,6 +146,8 @@ barplot(rna_qc_all_2015_2014_2013.sorted$strand.spec.log10, col = c("lightgreen"
 ## Correlations / scatterplots
 old_new.cuff.GM12878 <- readCufflinks("../diff_out_GM12878_masked_separate_old_vs_new")
 old_new.cuff.HeLa <- readCufflinks("../diff_out_HeLa_masked_separate_old_vs_new")
+cuff.2015.2014.2013.HeLa <- readCufflinks("../diff_out_HeLa_masked_2013_2014_2015/")
+
 
 #GM12878
 csScatterMatrix(genes(old_new.cuff.GM12878))
@@ -130,7 +155,11 @@ separate.fpkm.GM12878.old.new <- fpkmMatrix(genes(old_new.cuff.GM12878))
 cor(separate.fpkm.GM12878.old.new, method = "spearman")
 
 #HeLa-S3
-csScatterMatrix(genes(old_new.cuff.HeLa))
-separate.fpkm.HeLa.old.new <- fpkmMatrix(genes(old_new.cuff.HeLa))
-cor(separate.fpkm.HeLa.old.new, method = "spearman")
+#csScatterMatrix(genes(old_new.cuff.HeLa))
+#separate.fpkm.HeLa.old.new <- fpkmMatrix(genes(old_new.cuff.HeLa))
+#cor(separate.fpkm.HeLa.old.new, method = "spearman")
+
+csScatterMatrix(genes(cuff.2015.2014.2013.HeLa))
+separate.fpkm.HeLa.2015.2014.2013 <- fpkmMatrix(genes(cuff.2015.2014.2013.HeLa))
+cor(separate.fpkm.HeLa.2015.2014.2013, method = "spearman")
 
