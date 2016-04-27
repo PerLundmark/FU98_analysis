@@ -2,6 +2,7 @@
 #vars
 analysis.directory <- "~/Documents/FU98/analysis/FU98_analysis"
 flagstat.directory <- "/Users/per/Documents/FU98/analysis/duplicates/"
+longitudinal.flagstat.directory <- "/Users/per/Documents/FU98/analysis/duplicates/"
 
 #Functions
 flagstat.mapped.reads <- function(flagstat.file){
@@ -26,7 +27,7 @@ add.flagstat.path <- function(flagstat.filename){
 setwd(analysis.directory)
 rna_qc_uppsala <- read.delim("../uppsala/pipeline_output/RNA_QC/aggregated_metrics.tsv")
 rna_qc_stockholm <- read.delim("../stockholm/pipeline_output/RNA_QC/aggregated_metrics.tsv")
-rna_qc_uppsala$center <- "../uppsala/pipeline_output/RNA_QC/aggregated_metrics.tsv"
+rna_qc_uppsala$center <- "Uppsala"
 rna_qc_uppsala$pretty.sample <- c("Ua.HeLa-S3.1", "Ua.GM12878.1", "Ua.GM12878.2")
 rna_qc_stockholm$center <- "Stockholm"
 rna_qc_stockholm$pretty.sample <- c("Sth.GM12878.1", "Sth.HeLa-S3.2", "Sth.GM12878.2", "Sth.HeLa-S3.1")
@@ -95,7 +96,7 @@ dev.off()
 
 #Table of Spearman correlations
 separate.fpkm.HeLa <- fpkmMatrix(genes(separate.cuff.HeLa))
-cor(separate.fpkm.HeLa, method = "spearman")
+spearman.corr.HeLa <- cor(separate.fpkm.HeLa, method = "spearman")
 write.table(spearman.corr.HeLa, file="./output/spearman.corr.HeLa.tsv", sep="\t")
 
 #########################
@@ -116,21 +117,32 @@ rna_qc_all_2015_2014_2013 <- rbind(rna_qc_all_old_vs_new, rna_qc_2014)
 #rna_qc_all_old_vs_new.sorted <- rna_qc_all_old_vs_new[with(rna_qc_all_old_vs_new, order(pretty.sample)), ]
 rna_qc_all_2015_2014_2013$center <- as.factor(rna_qc_all_2015_2014_2013$center)
 rna_qc_all_2015_2014_2013.sorted <- rna_qc_all_2015_2014_2013[with(rna_qc_all_2015_2014_2013, order(pretty.sample)), ]
-
-#from primary above, saving in case its useful later
-#rna_qc_all.sorted$raw.pcr.dup <- c(0.381183,0.394302,0.297067,0.281671,0.247557,0.217364,0.198524)
-#flagstat.filenames <- c("ds_1-GM12878-1.bam.flagstat", "ds_2-GM12878-1.bam.flagstat", "ds_1-HeLa-S3.bam.flagstat", "ds_2-HeLa-S3.bam.flagstat", "ds_GM12878-1-RNA.bam.flagstat", "dedup_GM12878-1-RNA-1.bam.flagstat", "ds_HeLs-S3.bam.flagstat" )
-#rna_qc_all.sorted$flagstat.filename <- flagstat.filenames
+flagstat.filenames.longitudinal <- c(
+"/Users/per/Documents/FU98/analysis/FU45/flagstat/GM12878_Str-polyA_100ng-1.flagstat.txt",
+"/Users/per/Documents/FU98/analysis/FU45/flagstat/GM12878_Str-polyA_100ng-2.flagstat.txt",
+"/Users/per/Documents/FU98/analysis/FU45/flagstat/GM12878_Str-polyA_1ug-1.flagstat.txt", 
+"/Users/per/Documents/FU98/analysis/FU45/flagstat/GM12878_Str-polyA_1ug-2.flagstat.txt",
+"/Users/per/Documents/FU98/analysis/FU45/flagstat/HeLa_Str-polyA_1ug-1.flagstat.txt",
+"/Users/per/Documents/FU98/analysis/FU45/flagstat/HeLa_Str-polyA_1ug-2.flagstat.txt",
+"/Users/per/Documents/FU98/analysis/duplicates_longitudinal/ds_markdup_2014_HeLa-1.bam.flagstat",
+"/Users/per/Documents/FU98/analysis/duplicates_longitudinal/ds_markdup_2014_HeLa-2.bam.flagstat",
+"/Users/per/Documents/FU98/analysis/duplicates_longitudinal/ds_markdup_2015_GM12878-1.bam.flagstat",
+"/Users/per/Documents/FU98/analysis/duplicates_longitudinal/ds_markdup_2015_GM12878-2.bam.flagstat",
+"/Users/per/Documents/FU98/analysis/duplicates_longitudinal/ds_markdup_2015_HeLa.bam.flagstat"
+)
+rna_qc_all_2015_2014_2013.sorted$flagstat.filename <- flagstat.filenames.longitudinal
 
 #row.names(rna_qc_all_old_vs_new.sorted) <- rna_qc_all_old_vs_new.sorted$pretty.sample
 row.names(rna_qc_all_2015_2014_2013.sorted) <-  rna_qc_all_2015_2014_2013.sorted$pretty.sample
 
 old <- par()
 
-par(mar=c(10,5,5,5))
+ppi <- 300
+png("./output/rRNA_longitudinal.png", width=6*ppi, height=6*ppi, res=ppi)
+par(mar=c(12,5,5,1))
 #barplot (rna_qc_all_old_vs_new.sorted$rRNA.rate, col = c("lightgreen", "lightblue")[rna_qc_all_old_vs_new.sorted$center], names.arg = row.names(rna_qc_all_old_vs_new.sorted), las = 2, cex.names  = 0.9, ylim = c(0,0.004), ylab = "rRNA rate")
 barplot (rna_qc_all_2015_2014_2013.sorted$rRNA.rate, col = c("lightgreen", "lightblue", "white")[rna_qc_all_2015_2014_2013.sorted$center], names.arg = row.names(rna_qc_all_2015_2014_2013.sorted), las = 2, cex.names  = 0.9, ylim = c(0,0.004), ylab = "rRNA rate")
-
+dev.off()
 
 # Strand specificity
 #rna_qc_all_old_vs_new.sorted$strand.spec <- rna_qc_all_old_vs_new.sorted$End.1.Sense / rna_qc_all_old_vs_new.sorted$End.2.Sense
@@ -139,9 +151,22 @@ barplot (rna_qc_all_2015_2014_2013.sorted$rRNA.rate, col = c("lightgreen", "ligh
 
 rna_qc_all_2015_2014_2013.sorted$strand.spec <- rna_qc_all_2015_2014_2013.sorted$End.1.Sense / rna_qc_all_2015_2014_2013.sorted$End.2.Sense
 rna_qc_all_2015_2014_2013.sorted$strand.spec.log10 <- log10(rna_qc_all_2015_2014_2013.sorted$strand.spec)
-barplot(rna_qc_all_2015_2014_2013.sorted$strand.spec.log10, col = c("lightgreen", "lightblue", "white")[rna_qc_all_2015_2014_2013.sorted$center], names.arg = row.names(rna_qc_all_2015_2014_2013.sorted), las = 2, cex.names  = 0.9, ylim = c(-2.5,0.1), ylab = "Strand specificity")
 
-#PCR duplicate levels
+ppi <- 300
+png("./output/Strand_spec_longitudinal.png", width=6*ppi, height=6*ppi, res=ppi)
+par(mar=c(12,5,5,1))
+barplot(rna_qc_all_2015_2014_2013.sorted$strand.spec.log10, col = c("lightgreen", "lightblue", "white")[rna_qc_all_2015_2014_2013.sorted$center], names.arg = row.names(rna_qc_all_2015_2014_2013.sorted), las = 2, cex.names  = 0.9, ylim = c(-2.5,0.1), ylab = "Strand specificity")
+dev.off()
+
+#PCR duplicate levels   work in progress!####
+rna_qc_all_2015_2014_2013.sorted$ds.pcr.dup <- sapply(rna_qc_all_2015_2014_2013.sorted$flagstat.filename, flagstat.duplicate.reads) / sapply(rna_qc_all_2015_2014_2013.sorted$flagstat.filename, flagstat.mapped.reads)
+
+ppi <- 300
+png("./output/PCR_duprate_longitudinal.png", width=6*ppi, height=6*ppi, res=ppi)
+par(mar=c(10,5,5,1))
+barplot(rna_qc_all_2015_2014_2013.sorted$ds.pcr.dup, col = c("lightgreen", "lightblue")[rna_qc_all_2015_2014_2013.sorted$center], names.arg = row.names(rna_qc_all_2015_2014_2013.sorted), las = 2, cex.names  = 0.9, ylim = c(0,0.4), ylab = "Duplication rate")
+dev.off()
+####
 
 ## Correlations / scatterplots
 old_new.cuff.GM12878 <- readCufflinks("../diff_out_GM12878_masked_separate_old_vs_new")
@@ -150,16 +175,26 @@ cuff.2015.2014.2013.HeLa <- readCufflinks("../diff_out_HeLa_masked_2013_2014_201
 
 
 #GM12878
+ppi <- 300
+png("./output/Scatter_GM12878_longitudinal.png", width=10*ppi, height=10*ppi, res=ppi)
 csScatterMatrix(genes(old_new.cuff.GM12878))
+dev.off()
+
 separate.fpkm.GM12878.old.new <- fpkmMatrix(genes(old_new.cuff.GM12878))
-cor(separate.fpkm.GM12878.old.new, method = "spearman")
+spearman.corr.GM12878.longitudinal <- cor(separate.fpkm.GM12878.old.new, method = "spearman")
+write.table(spearman.corr.GM12878.longitudinal, file="./output/spearman.corr.GM12878.longitudinal.tsv", sep="\t")
 
 #HeLa-S3
 #csScatterMatrix(genes(old_new.cuff.HeLa))
 #separate.fpkm.HeLa.old.new <- fpkmMatrix(genes(old_new.cuff.HeLa))
 #cor(separate.fpkm.HeLa.old.new, method = "spearman")
 
+ppi <- 300
+png("./output/Scatter_HeLa_longitudinal.png", width=10*ppi, height=10*ppi, res=ppi)
 csScatterMatrix(genes(cuff.2015.2014.2013.HeLa))
+dev.off()
 separate.fpkm.HeLa.2015.2014.2013 <- fpkmMatrix(genes(cuff.2015.2014.2013.HeLa))
-cor(separate.fpkm.HeLa.2015.2014.2013, method = "spearman")
+spearman.corr.HeLa.longitudinal <- cor(separate.fpkm.HeLa.2015.2014.2013, method = "spearman")
+write.table(spearman.corr.HeLa.longitudinal, file="./output/spearman.corr.HeLa.longitudinal.tsv", sep="\t")
+
 
