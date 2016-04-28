@@ -10,9 +10,19 @@ flagstat.mapped.reads <- function(flagstat.file){
   as.numeric(flagstat.df[5,1])
 }
 
+flagstat.mapped.reads.old <- function(flagstat.file){
+  flagstat.df <- read.delim(flagstat.file, sep="", header=F, colClasses = c("character"))
+  as.numeric(flagstat.df[3,1])
+}
+
 flagstat.duplicate.reads <- function(flagstat.file){
   flagstat.df <- read.delim(flagstat.file, sep="", header=F, colClasses = c("character"))
   as.numeric(flagstat.df[4,1])
+}
+
+flagstat.duplicate.reads.old <- function(flagstat.file){
+  flagstat.df <- read.delim(flagstat.file, sep="", header=F, colClasses = c("character"))
+  as.numeric(flagstat.df[2,1])
 }
 
 add.flagstat.path <- function(flagstat.filename){
@@ -84,6 +94,16 @@ separate.fpkm.GM12878 <- fpkmMatrix(genes(separate.cuff.GM12878))
 spearman.corr.GM12878 <- cor(separate.fpkm.GM12878, method = "spearman")
 write.table(spearman.corr.GM12878, file="./output/spearman.corr.GM12878.tsv", sep="\t")
 
+#Pearson correlations
+cor(log2(separate.fpkm.GM12878 + 1), method = "pearson")
+cor(log2(separate.fpkm.GM12878 + .01), method = "pearson")
+cor(log2(separate.fpkm.GM12878 + .001), method = "pearson")
+cor(log10(separate.fpkm.GM12878 + 1), method = "pearson")
+cor(log10(separate.fpkm.GM12878 + .01), method = "pearson")
+cor(log10(separate.fpkm.GM12878 + .001), method = "pearson")
+
+
+
 #HeLa-S3
 separate.cuff.HeLa <- readCufflinks("../diff_out_HeLa_masked_separate")
 #plot scatterplots of all GM samples together
@@ -98,6 +118,16 @@ dev.off()
 separate.fpkm.HeLa <- fpkmMatrix(genes(separate.cuff.HeLa))
 spearman.corr.HeLa <- cor(separate.fpkm.HeLa, method = "spearman")
 write.table(spearman.corr.HeLa, file="./output/spearman.corr.HeLa.tsv", sep="\t")
+
+#pearson correlations
+cor(log2(separate.fpkm.HeLa + 1), method = "pearson")
+cor(log2(separate.fpkm.HeLa + .01), method = "pearson")
+cor(log2(separate.fpkm.HeLa + .001), method = "pearson")
+cor(log10(separate.fpkm.HeLa + 1), method = "pearson")
+cor(log10(separate.fpkm.HeLa + .01), method = "pearson")
+cor(log10(separate.fpkm.HeLa + .001), method = "pearson")
+
+
 
 #########################
 ### Longitudinal analysis
@@ -159,7 +189,8 @@ barplot(rna_qc_all_2015_2014_2013.sorted$strand.spec.log10, col = c("lightgreen"
 dev.off()
 
 #PCR duplicate levels   work in progress!####
-rna_qc_all_2015_2014_2013.sorted$ds.pcr.dup <- sapply(rna_qc_all_2015_2014_2013.sorted$flagstat.filename, flagstat.duplicate.reads) / sapply(rna_qc_all_2015_2014_2013.sorted$flagstat.filename, flagstat.mapped.reads)
+rna_qc_all_2015_2014_2013.sorted$ds.pcr.dup[1:6] <- sapply(rna_qc_all_2015_2014_2013.sorted$flagstat.filename[1:6], flagstat.duplicate.reads.old) / sapply(rna_qc_all_2015_2014_2013.sorted$flagstat.filename[1:6], flagstat.mapped.reads.old)
+rna_qc_all_2015_2014_2013.sorted$ds.pcr.dup[7:11] <- sapply(rna_qc_all_2015_2014_2013.sorted$flagstat.filename[7:11], flagstat.duplicate.reads) / sapply(rna_qc_all_2015_2014_2013.sorted$flagstat.filename[7:11], flagstat.mapped.reads)
 
 ppi <- 300
 png("./output/PCR_duprate_longitudinal.png", width=6*ppi, height=6*ppi, res=ppi)
@@ -184,6 +215,17 @@ separate.fpkm.GM12878.old.new <- fpkmMatrix(genes(old_new.cuff.GM12878))
 spearman.corr.GM12878.longitudinal <- cor(separate.fpkm.GM12878.old.new, method = "spearman")
 write.table(spearman.corr.GM12878.longitudinal, file="./output/spearman.corr.GM12878.longitudinal.tsv", sep="\t")
 
+
+#pearson correlations
+cor(log2(separate.fpkm.GM12878.old.new + 1), method = "pearson")
+cor(log2(separate.fpkm.GM12878.old.new + .01), method = "pearson")
+cor(log2(separate.fpkm.GM12878.old.new + .001), method = "pearson")
+cor(log10(separate.fpkm.GM12878.old.new + 1), method = "pearson")
+cor(log10(separate.fpkm.GM12878.old.new + .01), method = "pearson")
+cor(log10(separate.fpkm.GM12878.old.new + .001), method = "pearson")
+
+
+
 #HeLa-S3
 #csScatterMatrix(genes(old_new.cuff.HeLa))
 #separate.fpkm.HeLa.old.new <- fpkmMatrix(genes(old_new.cuff.HeLa))
@@ -197,4 +239,10 @@ separate.fpkm.HeLa.2015.2014.2013 <- fpkmMatrix(genes(cuff.2015.2014.2013.HeLa))
 spearman.corr.HeLa.longitudinal <- cor(separate.fpkm.HeLa.2015.2014.2013, method = "spearman")
 write.table(spearman.corr.HeLa.longitudinal, file="./output/spearman.corr.HeLa.longitudinal.tsv", sep="\t")
 
-
+#pearson correlations
+cor(log2(separate.fpkm.HeLa.2015.2014.2013 + 1), method = "pearson")
+cor(log2(separate.fpkm.HeLa.2015.2014.2013 + .01), method = "pearson")
+cor(log2(separate.fpkm.HeLa.2015.2014.2013 + .001), method = "pearson")
+cor(log10(separate.fpkm.HeLa.2015.2014.2013 + 1), method = "pearson")
+cor(log10(separate.fpkm.HeLa.2015.2014.2013 + .01), method = "pearson")
+cor(log10(separate.fpkm.HeLa.2015.2014.2013 + .001), method = "pearson")
